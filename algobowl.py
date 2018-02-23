@@ -1,3 +1,4 @@
+from operator import itemgetter
 def read_input(inputfile):
     edges = []
     #try:
@@ -9,17 +10,45 @@ def read_input(inputfile):
                 header=True
                 connectionmap = [[] for x in range(0, int(values[0])+1)]
             else:
-                try:
-                    connectionmap[values[0]].append((values[1], values[2]))
-                    connectionmap[values[1]].append((values[0], values[2]))
-                except IndexError:
-                    print(values)
-                    print(len(connectionmap))
-                    raise SystemExit
+                connectionmap[values[0]].append((values[1], values[2]))
+                connectionmap[values[1]].append((values[0], values[2]))
                 edges.append((values[0],values[1],values[2]))
     #except Exception as e:
     return connectionmap
 read_input('input.txt')
+
+#Solves by iterating through nodes in order of sum of weights, adding to the set they are more connected to unless needed to balance
+def mapSolve(connectionmap, edges):
+    weights = [edge[2] for edge in edges]
+    bias_weight = sum(weights)/len(weights)
+    left=set()
+    right=set()
+    nodes = [(i, connections) for i, connections in enumerate(connectionmap)]
+    nodes=sorted(nodes, key=lambda x:sum([connection[1] for connection in x[1]]))
+    for node in nodes:
+        decision = (len(left)-len(right))*bias_weight
+        for connection in node[1]:
+            if(connection[0] in left):
+                decision-=connection[1]
+            elif(connection[0] in right):
+                decision+=connection[1]
+        if(decision > 0):
+            right.add(node[0])
+        else:
+            left.add(node[0])
+    return rebalance(left, right)
+
+#Helper function for mapSolve
+def rebalance(left, right):
+    if (len(left) - len(right)) % 2 != 0:
+        raise InvalidInputException("set total is not even")
+    while(len(left)!=len(right)):
+        if len(left)>len(right):
+            pass
+        else:
+            pass
+
+    return (left,right)
 
 
 #Solves the problem by picking random sets, then improving them
