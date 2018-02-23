@@ -59,9 +59,16 @@ def rebalance(left, right, connectionmap):
             left.add(node)
     return (left, right)
 
-values = read_input('input.txt')
-sets = mapSolve(values[0], values[1])
-print(len(sets[0]), len(sets[1]))
+
+def calculateCost(left, right, connectionmap):
+    cost=0;
+    for node in left:
+        for connection in connectionmap[node]:
+            if connection[0] in right:
+                cost+=connection[1]
+    return cost
+
+
 
 #Solves the problem by picking random sets, then improving them
 def improveSolve(connectionmap):
@@ -95,3 +102,9 @@ def improveSolve(connectionmap):
                     total += 1
     
     return (left, right)
+
+values = read_input('input.txt')
+mapSolveSets = mapSolve(values[0], values[1])
+print(calculateCost(mapSolveSets[0], mapSolveSets[1], values[0]))
+improveSolveSets = improveSolve(values[0])
+print(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
