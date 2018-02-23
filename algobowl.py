@@ -70,6 +70,7 @@ def splitSolve(numNodes):
             right.add(i)
     return (left,right)
 
+#finds the cost of a solution
 def calculateCost(left, right, connectionmap):
     cost=0;
     for node in left:
@@ -80,12 +81,38 @@ def calculateCost(left, right, connectionmap):
                 cost+=connection[1]
     return cost
 
+def improveSolution(left, right, connectionmap):
+    misplaced = 0;
+    swaps=0
+    for lnode in left:
+        lcost = sum(connection[1] if connection[0] in right else -1*connection[1] for connection in connectionmap[lnode])
+        if lcost>0:
+            misplaced+=1
+            best_improvement=0
+            to_swap = None
+            for rnode in right:
+                rcost = sum(connection[1] if connection[0] in left else -1*connection[1] for connection in connectionmap[rnode])
+                if lcost+rcost>best_improvement:
+                    best_improvement=lcost+rcost
+                    to_swap = rnode
+            if to_swap:
+                swaps+=1
+                left.remove(lnode)
+                right.add(lnode)
+
+                right.remove(to_swap)
+                left.add(to_swap)
+    print(f'found {misplaced} misplaced nodes in left')
+    print(f'made {swaps} swaps')
+    return (left, right)
+
+
+#combines algorithms to reach a better solution
 def comboSolve(connectionMap, edges):
     mapSolveSets = mapSolve(connectionMap, edges)
     splitSolveSets = splitSolve(len(connectionMap))
     to_improve = mapSolveSets if calculateCost(mapSolveSets[0], mapSolveSets[1], connectionMap)<calculateCost(splitSolveSets[0], splitSolveSets[1], connectionMap) else splitSolveSets
-    #return improveSolve(to_improve[0], to_improve[1], connectionMap)
-    return to_improve
+    return improveSolution(to_improve[0], to_improve[1], connectionMap)
 
 
 #Solves the problem by picking random sets, then improving them
