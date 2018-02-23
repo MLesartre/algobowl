@@ -1,4 +1,5 @@
 from operator import itemgetter
+
 def read_input(inputfile):
     edges = []
     #try:
@@ -139,8 +140,9 @@ def improveSolve(connectionmap):
         
     hasImprovements = True
     while hasImprovements:
-        worst = -1000
-        worstnum = 0
+        #Calculates the change that would occur if one node on the left/right would be swapped
+        leftDelta = -1000
+        leftNum = 0
         for i in range(1, len(connectionmap)):
             if i in left:
                 total = 0
@@ -149,11 +151,12 @@ def improveSolve(connectionmap):
                         total += j[1]
                     else:
                         total -= j[1]
-                if(total > worst):
-                    worst = total
-                    worstnum = i
-        best = -1000
-        bestnum = 0
+                if(total > leftDelta):
+                    leftDelta = total
+                    leftNum = i
+        #Repeats the calculation on the right side, finding the best change
+        rightDelta = -1000
+        rightNum = 0
         for j in connectionmap:
             if i in right:
                 total = 0
@@ -162,15 +165,17 @@ def improveSolve(connectionmap):
                         total += j[1]
                     else:
                         total -= j[1]
-                if(total > best):
-                    best = total
-                    bestnum = i
-        if(worst > best and bestnum != 0 and worstnum != 0):
-            left.remove(worstnum)
-            right.remove(bestnum)
-            left.add(bestnum)
-            right.add(worstnum)
+                if(total > rightDelta):
+                    rightDelta = total
+                    rightNum = i
+        #Checks to make sure that the change would actually decrease the cost
+        if(leftDelta > rightDelta):
+            left.remove(leftNum)
+            right.remove(rightNum)
+            left.add(rightNum)
+            right.add(leftNum)
         else:
+            #If the best change wouldn't decrease cost, stop improving
             hasImprovements = False
     
     return (left, right)
@@ -178,7 +183,7 @@ def improveSolve(connectionmap):
 mapSolveCosts=[]
 splitSolveCosts=[]
 comboSolveCosts=[]
-#improveSolveCosts = []
+improveSolveCosts = []
 for i in range(1, 20):
     print(f'Solving group {i}')
     try:
@@ -192,13 +197,13 @@ for i in range(1, 20):
         comboSolveSets = comboSolve(values[0], values[1])
         comboSolveCosts.append(calculateCost(comboSolveSets[0], comboSolveSets[1], values[0]))
 
-        #improveSolveSets = improveSolve(values[0])
-        #improveSolveCosts.append(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
+        improveSolveSets = improveSolve(values[0])
+        improveSolveCosts.append(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
     except:
         print(f"Could not read group {i} input")
 print(f"total mapSolve Costs:   {sum(mapSolveCosts)}")
 print(f"total splitSolve Costs: {sum(splitSolveCosts)}")
 print(f"total comboSolve Costs: {sum(comboSolveCosts)}")
-#print(f"total improveSolve costs: "{sum(improveSolveCosts)})
-#improveSolveSets = improveSolve(values[0])
-#print(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
+print(f"total improveSolve costs: {sum(improveSolveCosts)}")
+improveSolveSets = improveSolve(values[0])
+print(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
