@@ -125,6 +125,19 @@ def comboSolve(connectionMap, edges):
     print(f'improved solution by {improvement}')
     return improved if improvement>=0 else to_improve
 
+def verifyOutput(infile, outfile):
+    connectionMap = read_input(infile)[0]
+    with open(outfile) as output:
+        lines = output.readlines()
+    claimed = int(lines[0])
+    left = set([int(x) for x in lines[1].split()])
+    right = set([int(x) for x in lines[2].split()])
+    actual = calculateCost(left, right, connectionMap)
+    if claimed == actual:
+        print(f"Successfully verified {outfile} based on {infile}")
+    else:
+        print(f"Verification failed on {outfile} based on {infile}\n\tClaimed: {claimed}\n\tActual: {actual}")
+
 #Solves the problem by picking random sets, then improving them
 def improveSolve(connectionmap):
     #Populates two random sets with all points
@@ -176,46 +189,55 @@ def improveSolve(connectionmap):
             hasImprovements = False
     
     return (left, right)
-	
-#mapSolveCosts=[]
-splitSolveCosts=[]
-comboSolveCosts=[]
-improveSolveCosts = []
 
-for i in range(1, 29):
-    print(f'Solving group {i}')
-    try:
-        values = read_input(f'input_group{i}.txt')
-        #mapSolveSets = mapSolve(values[0], values[1])
-        #mapSolveCosts.append(calculateCost(mapSolveSets[0], mapSolveSets[1], values[0]))
+def generate_output():
+    splitSolveCosts=[]
+    comboSolveCosts=[]
+    improveSolveCosts = []
 
-        splitSolveSets = splitSolve(len(values[0]))
-        splitSolveCosts.append(calculateCost(splitSolveSets[0], splitSolveSets[1], values[0]))
+    for i in range(1, 29):
+        print(f'Solving group {i}')
+        try:
+            values = read_input(f'input_group{i}.txt')
+            #mapSolveSets = mapSolve(values[0], values[1])
+            #mapSolveCosts.append(calculateCost(mapSolveSets[0], mapSolveSets[1], values[0]))
 
-        comboSolveSets = comboSolve(values[0], values[1])
-        comboSolveCost = calculateCost(comboSolveSets[0], comboSolveSets[1], values[0])
-        comboSolveCosts.append(comboSolveCost)
+            splitSolveSets = splitSolve(len(values[0]))
+            splitSolveCosts.append(calculateCost(splitSolveSets[0], splitSolveSets[1], values[0]))
 
-        improveSolveSets = improveSolve(values[0])
-        improveSolveCosts.append(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
+            comboSolveSets = comboSolve(values[0], values[1])
+            comboSolveCost = calculateCost(comboSolveSets[0], comboSolveSets[1], values[0])
+            comboSolveCosts.append(comboSolveCost)
 
-        with open(f'output\\group{i}.txt', 'w') as output:
-            output.write(f'{comboSolveCost}\n')
-            leftstring = ''
-            for node in comboSolveSets[0]:
-                leftstring += str(node) + ' '
-            output.write(f'{leftstring[:-1]}\n')
-            rightstring = ''
-            for node in comboSolveSets[1]:
-                rightstring += str(node) + ' '
-            output.write(f'{rightstring[:-1]}')
-    except:
-        print(f"Could not read group {i} input")
+            improveSolveSets = improveSolve(values[0])
+            improveSolveCosts.append(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
+
+            with open(f'output\\group{i}.txt', 'w') as output:
+                output.write(f'{comboSolveCost}\n')
+                leftstring = ''
+                for node in comboSolveSets[0]:
+                    leftstring += str(node) + ' '
+                output.write(f'{leftstring[:-1]}\n')
+                rightstring = ''
+                for node in comboSolveSets[1]:
+                    rightstring += str(node) + ' '
+                output.write(f'{rightstring[:-1]}')
+        except:
+            print(f"Could not read group {i} input")
 
 
 
-print(f"total splitSolve Costs: {sum(splitSolveCosts)}")
-print(f"total comboSolve Costs: {sum(comboSolveCosts)}")
-print(f"total improveSolve costs: {sum(improveSolveCosts)}")
-improveSolveSets = improveSolve(values[0])
-print(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
+    print(f"total splitSolve Costs: {sum(splitSolveCosts)}")
+    print(f"total comboSolve Costs: {sum(comboSolveCosts)}")
+    print(f"total improveSolve costs: {sum(improveSolveCosts)}")
+    improveSolveSets = improveSolve(values[0])
+    print(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
+
+def verifyAll():
+    for i in range(1, 29):
+        try:
+            verifyOutput(f'input_group{i}.txt',f'output\\group{i}.txt')
+        except:
+            print(f"An error occured verifying group {i}")
+
+verifyAll()
