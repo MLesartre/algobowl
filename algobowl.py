@@ -42,16 +42,16 @@ def rebalance(left, right, connectionmap):
     if (len(left) - len(right)) % 2 != 0:
         raise ValueError("set total is not even")
     if len(left)>len(right):
-        to_move = (len(left)-len(right))/2
-        print(to_move)
+        to_move = int((len(left)-len(right))/2)
+        print(f"rebalancing: {to_move} nodes from left to right")
         importance_list = sorted(left, key=lambda x: sum(
             [(connection[1] if connection[0] in left else -1*connection[1]) for connection in connectionmap[x]]))
         for node in importance_list[:to_move]:
             left.remove(node)
             right.add(node)
     elif len(right)>len(left):
-        to_move = (len(right)-len(left))/2
-        print(to_move)
+        to_move = int((len(right)-len(left))/2)
+        print(f"rebalancing: {to_move} nodes from right to left")
         importance_list = sorted(right, key=lambda x: sum(
             [(connection[1] if connection[0] in right else -1 * connection[1]) for connection in connectionmap[x]]))
         for node in importance_list[:to_move]:
@@ -59,6 +59,16 @@ def rebalance(left, right, connectionmap):
             left.add(node)
     return (left, right)
 
+#simply splits the nodes in half - used to test if an algorithm is significantly better
+def splitSolve(numNodes):
+    left=set()
+    right=set()
+    for i in range(1, numNodes+1):
+        if i%2==0:
+            left.add(i)
+        else:
+            right.add(i)
+    return (left,right)
 
 def calculateCost(left, right, connectionmap):
     cost=0;
@@ -106,5 +116,7 @@ def improveSolve(connectionmap):
 values = read_input('input.txt')
 mapSolveSets = mapSolve(values[0], values[1])
 print(calculateCost(mapSolveSets[0], mapSolveSets[1], values[0]))
-improveSolveSets = improveSolve(values[0])
-print(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
+splitSolveSets = splitSolve(len(values[0])-1)
+print(calculateCost(splitSolveSets[0], splitSolveSets[1], values[0]))
+#improveSolveSets = improveSolve(values[0])
+#print(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
