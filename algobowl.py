@@ -5,7 +5,7 @@ def read_input(inputfile):
     with open(inputfile) as edgesfile:
         header=False
         for line in edgesfile:
-            values = [int(x) for x in line.split(' ')]
+            values = [int(x) for x in line.split()]
             if(not header):
                 header=True
                 connectionmap = [[] for x in range(0, int(values[0])+1)]
@@ -73,6 +73,8 @@ def splitSolve(numNodes):
 def calculateCost(left, right, connectionmap):
     cost=0;
     for node in left:
+        if node in right:
+            raise ValueError("left and right sets overlap")
         for connection in connectionmap[node]:
             if connection[0] in right:
                 cost+=connection[1]
@@ -113,10 +115,22 @@ def improveSolve(connectionmap):
     
     return (left, right)
 
-values = read_input('input.txt')
-mapSolveSets = mapSolve(values[0], values[1])
-print(calculateCost(mapSolveSets[0], mapSolveSets[1], values[0]))
-splitSolveSets = splitSolve(len(values[0])-1)
-print(calculateCost(splitSolveSets[0], splitSolveSets[1], values[0]))
+mapSolveCosts=[]
+splitSolveCosts=[]
+#improveSolveCosts = []
+for i in range(1, 20):
+    try:
+        values = read_input(f'input_group{i}.txt')
+        mapSolveSets = mapSolve(values[0], values[1])
+        mapSolveCosts.append(calculateCost(mapSolveSets[0], mapSolveSets[1], values[0]))
+        splitSolveSets = splitSolve(len(values[0])-1)
+        splitSolveCosts.append(calculateCost(splitSolveSets[0], splitSolveSets[1], values[0]))
+        #improveSolveSets = improveSolve(values[0])
+        #improveSolveCosts.append(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
+    except:
+        print(f"Could not read group {i} input")
+print(f"total mapSolve costs: {sum(mapSolveCosts)}")
+print(f"total splitSolve Costs: {sum(splitSolveCosts)}")
+#print(f"total improveSolve costs: "{sum(improveSolveCosts)})
 #improveSolveSets = improveSolve(values[0])
 #print(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
