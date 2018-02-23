@@ -43,7 +43,7 @@ def rebalance(left, right, connectionmap):
         raise ValueError("set total is not even")
     if len(left)>len(right):
         to_move = int((len(left)-len(right))/2)
-        print(f"rebalancing: {to_move} nodes from left to right")
+        #print(f"rebalancing: {to_move} nodes from left to right")
         importance_list = sorted(left, key=lambda x: sum(
             [(connection[1] if connection[0] in left else -1*connection[1]) for connection in connectionmap[x]]))
         for node in importance_list[:to_move]:
@@ -51,7 +51,7 @@ def rebalance(left, right, connectionmap):
             right.add(node)
     elif len(right)>len(left):
         to_move = int((len(right)-len(left))/2)
-        print(f"rebalancing: {to_move} nodes from right to left")
+        #print(f"rebalancing: {to_move} nodes from right to left")
         importance_list = sorted(right, key=lambda x: sum(
             [(connection[1] if connection[0] in right else -1 * connection[1]) for connection in connectionmap[x]]))
         for node in importance_list[:to_move]:
@@ -63,7 +63,7 @@ def rebalance(left, right, connectionmap):
 def splitSolve(numNodes):
     left=set()
     right=set()
-    for i in range(1, numNodes+1):
+    for i in range(1, numNodes):
         if i%2==0:
             left.add(i)
         else:
@@ -80,6 +80,10 @@ def calculateCost(left, right, connectionmap):
                 cost+=connection[1]
     return cost
 
+def comboSolve(connectionMap, edges):
+    mapSolveSets = mapSolve(connectionMap, edges)
+    splitSolveSets = splitSolve(len(connectionMap))
+    return mapSolveSets if calculateCost(mapSolveSets[0], mapSolveSets[1], connectionMap)<calculateCost(splitSolveSets[0], splitSolveSets[1], connectionMap) else splitSolveSets
 
 
 #Solves the problem by picking random sets, then improving them
@@ -117,20 +121,27 @@ def improveSolve(connectionmap):
 
 mapSolveCosts=[]
 splitSolveCosts=[]
+comboSolveCosts=[]
 #improveSolveCosts = []
 for i in range(1, 20):
     try:
         values = read_input(f'input_group{i}.txt')
         mapSolveSets = mapSolve(values[0], values[1])
         mapSolveCosts.append(calculateCost(mapSolveSets[0], mapSolveSets[1], values[0]))
-        splitSolveSets = splitSolve(len(values[0])-1)
+
+        splitSolveSets = splitSolve(len(values[0]))
         splitSolveCosts.append(calculateCost(splitSolveSets[0], splitSolveSets[1], values[0]))
+
+        comboSolveSets = comboSolve(values[0], values[1])
+        comboSolveCosts.append(calculateCost(comboSolveSets[0], comboSolveSets[1], values[0]))
+
         #improveSolveSets = improveSolve(values[0])
         #improveSolveCosts.append(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
     except:
         print(f"Could not read group {i} input")
-print(f"total mapSolve costs: {sum(mapSolveCosts)}")
+print(f"total mapSolve Costs:   {sum(mapSolveCosts)}")
 print(f"total splitSolve Costs: {sum(splitSolveCosts)}")
+print(f"total comboSolve Costs: {sum(comboSolveCosts)}")
 #print(f"total improveSolve costs: "{sum(improveSolveCosts)})
 #improveSolveSets = improveSolve(values[0])
 #print(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
