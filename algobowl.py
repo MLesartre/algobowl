@@ -102,18 +102,30 @@ def improveSolution(left, right, connectionmap):
 
                 right.remove(to_swap)
                 left.add(to_swap)
-    print(f'found {misplaced} misplaced nodes in left')
-    print(f'made {swaps} swaps')
+    #print(f'found {misplaced} misplaced nodes in left')
+    #print(f'made {swaps} swaps')
     return (left, right)
 
 
 #combines algorithms to reach a better solution
 def comboSolve(connectionMap, edges):
+    threshold = 0
     mapSolveSets = mapSolve(connectionMap, edges)
     splitSolveSets = splitSolve(len(connectionMap))
     to_improve = mapSolveSets if calculateCost(mapSolveSets[0], mapSolveSets[1], connectionMap)<calculateCost(splitSolveSets[0], splitSolveSets[1], connectionMap) else splitSolveSets
-    return improveSolution(to_improve[0], to_improve[1], connectionMap)
-
+    to_improve_cost = calculateCost(to_improve[0], to_improve[1], connectionMap)
+    improved = improveSolution(to_improve[0], to_improve[1], connectionMap)
+    improved_cost = calculateCost(improved[0], improved[1], connectionMap)
+    improvement = to_improve_cost-improved_cost
+    while improvement> threshold:
+        print(f'improved solution by {improvement}')
+        to_improve=improved
+        to_improve_cost=improved_cost
+        improved = improveSolution(to_improve[0], to_improve[1], connectionMap)
+        improved_cost = calculateCost(improved[0], improved[1], connectionMap)
+        improvement = to_improve_cost - improved_cost
+    print(f'improved solution by {improvement}')
+    return improved
 
 #Solves the problem by picking random sets, then improving them
 def improveSolve(connectionmap):
@@ -153,6 +165,7 @@ splitSolveCosts=[]
 comboSolveCosts=[]
 #improveSolveCosts = []
 for i in range(1, 20):
+    print(f'Solving group {i}')
     try:
         values = read_input(f'input_group{i}.txt')
         mapSolveSets = mapSolve(values[0], values[1])
