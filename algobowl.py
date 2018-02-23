@@ -133,20 +133,14 @@ def verifyOutput(infile, outfile):
     except:
         print(f'An error occured while verifying {outfile} based on {infile}')
 
-#Solves the problem by picking random sets, then improving them
-def improveSolve(connectionmap):
-    #Populates two random sets with all points
-    left = set()
-    right = set()
-    for i in range(1, int(len(connectionmap) / 2 + 1)):
-        left.add(i)
-    for i in range(int(len(connectionmap) / 2) + 1, len(connectionmap)):
-        right.add(i)
-        
+#Core funciton of improveSolve, except now it takes a pair of sets as the input.
+def improveSolver(left, right, connectionmap):
     hasImprovements = True
+    prevRNum = 0
+    prevLNum = 0
     while hasImprovements:
         #Calculates the change that would occur if one node on the left/right would be swapped
-        leftDelta = -1000
+        leftDelta = -1000000
         leftNum = 0
         for i in range(1, len(connectionmap)):
             if i in left:
@@ -160,9 +154,9 @@ def improveSolve(connectionmap):
                     leftDelta = total
                     leftNum = i
         #Repeats the calculation on the right side, finding the best change
-        rightDelta = -1000
+        rightDelta = -1000000
         rightNum = 0
-        for j in connectionmap:
+        for i in range(1, len(connectionmap)):
             if i in right:
                 total = 0
                 for j in connectionmap[i]:
@@ -173,8 +167,10 @@ def improveSolve(connectionmap):
                 if(total > rightDelta):
                     rightDelta = total
                     rightNum = i
-        #Checks to make sure that the change would actually decrease the cost
-        if(leftDelta > rightDelta):
+        #Checks to make sure that the change would actually decrease the cost and that both numbers exist
+        if(leftDelta + rightDelta > 0 and rightNum != 0 and leftNum != 0 and leftNum != prevRNum and rightNum != prevLNum):
+            prevLNum = leftNum
+            prevRNum = rightNum
             left.remove(leftNum)
             right.remove(rightNum)
             left.add(rightNum)
