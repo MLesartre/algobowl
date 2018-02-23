@@ -1,8 +1,6 @@
-from operator import itemgetter
-
+#reads data from a file, returning a list of connections for each node and a list of edges
 def read_input(inputfile):
     edges = []
-    #try:
     with open(inputfile) as edgesfile:
         header=False
         for line in edgesfile:
@@ -14,7 +12,6 @@ def read_input(inputfile):
                 connectionmap[values[0]].append((values[1], values[2]))
                 connectionmap[values[1]].append((values[0], values[2]))
                 edges.append((values[0],values[1],values[2]))
-    #except Exception as e:
     return (connectionmap, edges)
 
 #Solves by iterating through nodes in order of sum of weights, adding to the set they are more connected to unless needed to balance
@@ -38,13 +35,12 @@ def mapSolve(connectionmap, edges):
             left.add(node[0])
     return rebalance(left, right, connectionmap)
 
-#Helper function for mapSolve
+#Helper function for mapSolve - if halves are not balanced, moves nodes to balance them
 def rebalance(left, right, connectionmap):
     if (len(left) - len(right)) % 2 != 0:
         raise ValueError("set total is not even")
     if len(left)>len(right):
         to_move = int((len(left)-len(right))/2)
-        #print(f"rebalancing: {to_move} nodes from left to right")
         importance_list = sorted(left, key=lambda x: sum(
             [(connection[1] if connection[0] in left else -1*connection[1]) for connection in connectionmap[x]]))
         for node in importance_list[:to_move]:
@@ -52,7 +48,6 @@ def rebalance(left, right, connectionmap):
             right.add(node)
     elif len(right)>len(left):
         to_move = int((len(right)-len(left))/2)
-        #print(f"rebalancing: {to_move} nodes from right to left")
         importance_list = sorted(right, key=lambda x: sum(
             [(connection[1] if connection[0] in right else -1 * connection[1]) for connection in connectionmap[x]]))
         for node in importance_list[:to_move]:
@@ -86,7 +81,6 @@ def improveSolution(left, right, connectionmap):
     swaps=0
     for lnode in left:
         lcost = sum(connection[1] if connection[0] in right else -1*connection[1] for connection in connectionmap[lnode])
-        #if lcost>0:
         best_improvement=0
         to_swap = None
         for rnode in right:
@@ -101,9 +95,7 @@ def improveSolution(left, right, connectionmap):
 
             right.remove(to_swap)
             left.add(to_swap)
-    #print(f'made {swaps} swaps')
     return (left, right)
-
 
 #combines algorithms to reach a better solution
 def comboSolve(connectionMap, edges):
@@ -202,8 +194,6 @@ def generate_output():
         print(f'Solving group {i}')
         try:
             values = read_input(f'input_group{i}.txt')
-            #mapSolveSets = mapSolve(values[0], values[1])
-            #mapSolveCosts.append(calculateCost(mapSolveSets[0], mapSolveSets[1], values[0]))
 
             splitSolveSets = splitSolve(len(values[0]))
             splitSolveCosts.append(calculateCost(splitSolveSets[0], splitSolveSets[1], values[0]))
