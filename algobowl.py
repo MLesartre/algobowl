@@ -126,17 +126,20 @@ def comboSolve(connectionMap, edges):
     return improved if improvement>=0 else to_improve
 
 def verifyOutput(infile, outfile):
-    connectionMap = read_input(infile)[0]
-    with open(outfile) as output:
-        lines = output.readlines()
-    claimed = int(lines[0])
-    left = set([int(x) for x in lines[1].split()])
-    right = set([int(x) for x in lines[2].split()])
-    actual = calculateCost(left, right, connectionMap)
-    if claimed == actual:
-        print(f"Successfully verified {outfile} based on {infile}")
-    else:
-        print(f"Verification failed on {outfile} based on {infile}\n\tClaimed: {claimed}\n\tActual: {actual}")
+    try:
+        connectionMap = read_input(infile)[0]
+        with open(outfile) as output:
+            lines = output.readlines()
+        claimed = int(lines[0])
+        left = set([int(x) for x in lines[1].split()])
+        right = set([int(x) for x in lines[2].split()])
+        actual = calculateCost(left, right, connectionMap)
+        if claimed == actual:
+            print(f"Successfully verified {outfile} based on {infile}")
+        else:
+            print(f"Verification failed on {outfile} based on {infile}\n\tClaimed: {claimed}\n\tActual: {actual}")
+    except:
+        print(f'An error occured while verifying {outfile} based on {infile}')
 
 #Solves the problem by picking random sets, then improving them
 def improveSolve(connectionmap):
@@ -235,9 +238,6 @@ def generate_output():
 
 def verifyAll():
     for i in range(1, 29):
-        try:
-            verifyOutput(f'input_group{i}.txt',f'output\\group{i}.txt')
-        except:
-            print(f"An error occured verifying group {i}")
+        verifyOutput(f'input_group{i}.txt',f'output\\group{i}.txt')
 
 verifyAll()
