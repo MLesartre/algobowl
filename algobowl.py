@@ -132,34 +132,49 @@ def improveSolve(connectionmap):
     #Populates two random sets with all points
     left = set()
     right = set()
-    for i in range(1, int(len(connectionmap) / 2)):
+    for i in range(1, int(len(connectionmap) / 2 + 1)):
         left.add(i)
     for i in range(int(len(connectionmap) / 2) + 1, len(connectionmap)):
         right.add(i)
         
-    hasImprovements = true
+    hasImprovements = True
     while hasImprovements:
-        worst = 10000000
+        worst = -1000
         worstnum = 0
-        for i in range(1, len(connectiomap)):
+        for i in range(1, len(connectionmap)):
             if i in left:
                 total = 0
-                for j in i:
-                    if j in right:
+                for j in connectionmap[i]:
+                    if j[0] in right:
                         total += j[1]
-                if(total < worst):
+                    else:
+                        total -= j[1]
+                if(total > worst):
                     worst = total
                     worstnum = i
-        best = 0
+        best = -1000
         bestnum = 0
         for j in connectionmap:
             if i in right:
                 total = 0
-                for j in i:
-                    total += 1
+                for j in connectionmap[i]:
+                    if j[0] in left:
+                        total += j[1]
+                    else:
+                        total -= j[1]
+                if(total > best):
+                    best = total
+                    bestnum = i
+        if(worst > best and bestnum != 0 and worstnum != 0):
+            left.remove(worstnum)
+            right.remove(bestnum)
+            left.add(bestnum)
+            right.add(worstnum)
+        else:
+            hasImprovements = False
     
     return (left, right)
-
+	
 mapSolveCosts=[]
 splitSolveCosts=[]
 comboSolveCosts=[]
