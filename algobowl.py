@@ -14,8 +14,7 @@ def read_input(inputfile):
                 connectionmap[values[1]].append((values[0], values[2]))
                 edges.append((values[0],values[1],values[2]))
     #except Exception as e:
-    return connectionmap
-read_input('input.txt')
+    return (connectionmap, edges)
 
 #Solves by iterating through nodes in order of sum of weights, adding to the set they are more connected to unless needed to balance
 def mapSolve(connectionmap, edges):
@@ -24,7 +23,7 @@ def mapSolve(connectionmap, edges):
     left=set()
     right=set()
     nodes = [(i, connections) for i, connections in enumerate(connectionmap)]
-    nodes=sorted(nodes, key=lambda x:sum([connection[1] for connection in x[1]]))
+    nodes=sorted(nodes[1:], key=lambda x:sum([connection[1] for connection in x[1]]))
     for node in nodes:
         decision = (len(left)-len(right))*bias_weight
         for connection in node[1]:
@@ -36,20 +35,33 @@ def mapSolve(connectionmap, edges):
             right.add(node[0])
         else:
             left.add(node[0])
-    return rebalance(left, right)
+    return rebalance(left, right, connectionmap)
 
 #Helper function for mapSolve
-def rebalance(left, right):
+def rebalance(left, right, connectionmap):
     if (len(left) - len(right)) % 2 != 0:
-        raise InvalidInputException("set total is not even")
-    while(len(left)!=len(right)):
-        if len(left)>len(right):
-            pass
-        else:
-            pass
+        raise ValueError("set total is not even")
+    if len(left)>len(right):
+        to_move = (len(left)-len(right))/2
+        print(to_move)
+        importance_list = sorted(left, key=lambda x: sum(
+            [(connection[1] if connection[0] in left else -1*connection[1]) for connection in connectionmap[x]]))
+        for node in importance_list[:to_move]:
+            left.remove(node)
+            right.add(node)
+    elif len(right)>len(left):
+        to_move = (len(right)-len(left))/2
+        print(to_move)
+        importance_list = sorted(right, key=lambda x: sum(
+            [(connection[1] if connection[0] in right else -1 * connection[1]) for connection in connectionmap[x]]))
+        for node in importance_list[:to_move]:
+            right.remove(node)
+            left.add(node)
+    return (left, right)
 
-    return (left,right)
-
+values = read_input('input.txt')
+sets = mapSolve(values[0], values[1])
+print(len(sets[0]), len(sets[1]))
 
 #Solves the problem by picking random sets, then improving them
 def improveSolve(connectionmap):
