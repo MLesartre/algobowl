@@ -1,4 +1,5 @@
 from operator import itemgetter
+
 def read_input(inputfile):
     edges = []
     #try:
@@ -129,38 +130,58 @@ def improveSolve(connectionmap):
     #Populates two random sets with all points
     left = set()
     right = set()
-    for i in range(1, int(len(connectionmap) / 2)):
+    for i in range(1, int(len(connectionmap) / 2 + 1)):
         left.add(i)
     for i in range(int(len(connectionmap) / 2) + 1, len(connectionmap)):
         right.add(i)
         
-    hasImprovements = true
+    hasImprovements = True
     while hasImprovements:
-        worst = 10000000
-        worstnum = 0
-        for i in range(1, len(connectiomap)):
+        #Calculates the change that would occur if one node on the left/right would be swapped
+        leftDelta = -1000
+        leftNum = 0
+        for i in range(1, len(connectionmap)):
             if i in left:
                 total = 0
-                for j in i:
-                    if j in right:
+                for j in connectionmap[i]:
+                    if j[0] in right:
                         total += j[1]
-                if(total < worst):
-                    worst = total
-                    worstnum = i
-        best = 0
-        bestnum = 0
+                    else:
+                        total -= j[1]
+                if(total > leftDelta):
+                    leftDelta = total
+                    leftNum = i
+        #Repeats the calculation on the right side, finding the best change
+        rightDelta = -1000
+        rightNum = 0
         for j in connectionmap:
             if i in right:
                 total = 0
-                for j in i:
-                    total += 1
+                for j in connectionmap[i]:
+                    if j[0] in left:
+                        total += j[1]
+                    else:
+                        total -= j[1]
+                if(total > rightDelta):
+                    rightDelta = total
+                    rightNum = i
+        #Checks to make sure that the change would actually decrease the cost
+        if(leftDelta > rightDelta):
+            left.remove(leftNum)
+            right.remove(rightNum)
+            left.add(rightNum)
+            right.add(leftNum)
+        else:
+            #If the best change wouldn't decrease cost, stop improving
+            hasImprovements = False
     
     return (left, right)
-
-mapSolveCosts=[]
+	
+#mapSolveCosts=[]
 splitSolveCosts=[]
 comboSolveCosts=[]
-#improveSolveCosts = []
+improveSolveCosts = []
+
 for i in range(1, 29):
     print(f'Solving group {i}')
     try:
@@ -175,8 +196,9 @@ for i in range(1, 29):
         comboSolveCost = calculateCost(comboSolveSets[0], comboSolveSets[1], values[0])
         comboSolveCosts.append(comboSolveCost)
 
-        #improveSolveSets = improveSolve(values[0])
-        #improveSolveCosts.append(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
+        improveSolveSets = improveSolve(values[0])
+        improveSolveCosts.append(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
+
         with open(f'output\\group{i}.txt', 'w') as output:
             output.write(f'{comboSolveCost}\n')
             leftstring = ''
@@ -192,9 +214,8 @@ for i in range(1, 29):
 
 
 
-#print(f"total mapSolve Costs:   {sum(mapSolveCosts)}")
 print(f"total splitSolve Costs: {sum(splitSolveCosts)}")
 print(f"total comboSolve Costs: {sum(comboSolveCosts)}")
-#print(f"total improveSolve costs: "{sum(improveSolveCosts)})
-#improveSolveSets = improveSolve(values[0])
-#print(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
+print(f"total improveSolve costs: {sum(improveSolveCosts)}")
+improveSolveSets = improveSolve(values[0])
+print(calculateCost(improveSolveSets[0], improveSolveSets[1], values[0]))
