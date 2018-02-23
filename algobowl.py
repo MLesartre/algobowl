@@ -83,7 +83,9 @@ def calculateCost(left, right, connectionmap):
 def comboSolve(connectionMap, edges):
     mapSolveSets = mapSolve(connectionMap, edges)
     splitSolveSets = splitSolve(len(connectionMap))
-    return mapSolveSets if calculateCost(mapSolveSets[0], mapSolveSets[1], connectionMap)<calculateCost(splitSolveSets[0], splitSolveSets[1], connectionMap) else splitSolveSets
+    to_improve = mapSolveSets if calculateCost(mapSolveSets[0], mapSolveSets[1], connectionMap)<calculateCost(splitSolveSets[0], splitSolveSets[1], connectionMap) else splitSolveSets
+    #return improveSolve(to_improve[0], to_improve[1], connectionMap)
+    return to_improve
 
 
 #Solves the problem by picking random sets, then improving them
